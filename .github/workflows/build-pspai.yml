@@ -65,9 +65,10 @@ jobs:
           path: out
       - name: Package PSP installer
         run: |
-          cd out
-          zip -qr ../PSPAI_v0.3.1_PSP3006.zip PSP
-          test -s ../PSPAI_v0.3.1_PSP3006.zip
+          mkdir -p stage/PSP
+          cp -R out/GAME stage/PSP/
+          (cd stage && zip -qr ../PSPAI_v0.3.1_PSP3006.zip PSP)
+          test -s PSPAI_v0.3.1_PSP3006.zip
       - name: Publish experimental v0.3.1 release if absent
         env:
           GH_TOKEN: ${{ github.token }}
