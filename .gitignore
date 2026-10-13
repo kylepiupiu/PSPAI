@@ -1,0 +1,23 @@
+# Python local runtime
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+!.env.example
+# Native PSP build output
+*.o
+*.elf
+*.prx
+*.sfo
+psp/EBOOT.PBP
+# Diagnostics / secrets
+*.log
+*token*.txt
+# Arduino local data
+.DS_Store
+.idea/
+.vscode/
+
+# Private ESP32 station credentials; copy from config.example.h
+config.h

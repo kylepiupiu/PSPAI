@@ -1,0 +1,84 @@
+name: Build PSPAI Native EBOOT
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'psp/**'
+      - 'mac_relay/**'
+      - 'esp32/**'
+      - '.github/workflows/build-pspai.yml'
+      - 'README*'
+      - 'docs/**'
+  pull_request:
+    paths:
+      - 'psp/**'
+      - 'mac_relay/**'
+      - 'esp32/**'
+      - '.github/workflows/build-pspai.yml'
+
+jobs:
+  test-relay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit test local ModelScope relay
+        run: |
+          cd mac_relay
+          python3 -m unittest -v test_local test_v03
+
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: pspdev/pspdev:v20261001
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build PSP EBOOT with PSPDEV
+        shell: sh
+        run: |
+          export PSPDEV="${PSPDEV:-/usr/local/pspdev}"
+          export PATH="$PSPDEV/bin:$PATH"
+          psp-gcc --version
+          make -C psp
+          test -s psp/EBOOT.PBP
+      - name: Prepare install tree
+        shell: sh
+        run: |
+          mkdir -p out/PSP/GAME/PSPAI_V031
+          cp psp/EBOOT.PBP out/PSP/GAME/PSPAI_V031/EBOOT.PBP
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PSPAI-v0.3.1-PSP3006
+          path: out/PSP/
+          if-no-files-found: error
+
+  publish-initial-prerelease:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test-relay, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: PSPAI-v0.3.1-PSP3006
+          path: out
+      - name: Package PSP installer
+        run: |
+          cd out
+          zip -qr ../PSPAI_v0.3.1_PSP3006.zip PSP
+          test -s ../PSPAI_v0.3.1_PSP3006.zip
+      - name: Publish experimental v0.3.1 release if absent
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v0.3.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'v0.3.1 already published; no overwrite.'
+          else
+            gh release create v0.3.1 PSPAI_v0.3.1_PSP3006.zip \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title 'PSPAI v0.3.1 - PSP 3006 native AI chat (experimental)' \
+              --prerelease \
+              --notes 'First user-confirmed native PSP 3006 Qwen question and answer. Requires an ESP32-S3 bridge, an online Python Relay host, and your own ModelScope token. Experimental: regression and Chinese glyph display are not complete. See README and docs/INSTALL_zh-CN.md.'
+          fi
