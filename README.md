@@ -1,4 +1,22 @@
-# PSPAI · PSP 原生 AI 助手
+# PSPAI — Native AI Chat for Sony PSP | PSP 原生 AI 助手
+
+[**English documentation**](README.en.md) · [**English installation guide**](docs/INSTALL_en.md) · [**中文说明**](#中文介绍)
+
+[![Build & relay tests](https://github.com/kylepiupiu/PSPAI/actions/workflows/build-pspai.yml/badge.svg)](https://github.com/kylepiupiu/PSPAI/actions/workflows/build-pspai.yml)
+[![GitHub release](https://img.shields.io/github/v/release/kylepiupiu/PSPAI?include_prereleases)](https://github.com/kylepiupiu/PSPAI/releases)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**Bring conversational AI to a classic Sony PSP — with a native homebrew app, not a web browser.** PSPAI sends questions from the PSP through an ESP32-S3 Wi-Fi/TCP bridge to a Python relay on a computer, which calls Qwen through the ModelScope API and returns the answer to the handheld.
+
+**Status:** v0.3.1 experimental prerelease. One real PSP-3006 native question/answer session has been confirmed; broader hardware compatibility, multi-turn reliability, and Chinese font rendering are not yet validated. The PSP and ESP32 do **not** run the AI model locally.
+
+**Get started:** [Download PSP EBOOT installer](https://github.com/kylepiupiu/PSPAI/releases/tag/v0.3.1) · [Setup in English](docs/INSTALL_en.md) · [Report an issue](https://github.com/kylepiupiu/PSPAI/issues) · [Contribute](CONTRIBUTING.md)
+
+**Security notice:** `wifi4psp` is an intentionally open access point and the local PSP-to-relay connection is unencrypted. Use an isolated, trusted test network. No API token is distributed with the project.
+
+---
+
+## 中文介绍
 
 **让 PSP 3006 原生程序通过 ESP32-S3 Wi-Fi 网关与千问模型对话。** 不是在 PSP 上打开网页，也不是 PSP 本地运行大模型。
 
